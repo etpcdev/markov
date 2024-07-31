@@ -3,6 +3,7 @@ import re
 Accepts a body of text and returns a list of all the tokens in order.
 """
 class Tokenizer():
+    
     #Tokenizes Unicode text
     @classmethod
     def tokenize_text(cls, text: str) -> list[str] | None:
