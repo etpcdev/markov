@@ -1,6 +1,5 @@
 from json import loads
 from random import choices
-from .tokenizer import Tokenizer
 
 class MarkovMachine:
 
