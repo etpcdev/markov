@@ -1,5 +1,6 @@
-from ..tokenizer import Tokenizer
-from ..model_handler import ModelHandler
+from markov.tokenizer import Tokenizer
+from markov.model_handler import ModelHandler
+from markov.markov_machine import MarkovMachine
 
 txt = """The Project Gutenberg eBook of Æsop's Fables: A Version for Young Readers
 
@@ -102,6 +103,10 @@ traits, is the least offensive way that can fall to a person’s lot.
 Among several hundred episodes, knowledge of which is acquired in
 childhood as a part of an educational routine, most conservative"""
 
-tokens: list[str] = Tokenizer.tokenize_text(txt)
-model: str = ModelHandler.generate_model(tokens=tokens, depth=3)
-ModelHandler.export_model(model=model, path="./temp_model.json")
+#tokens: list[str] = Tokenizer.tokenize_text(txt)
+#model: str = ModelHandler.generate_model(tokens=tokens, depth=3)
+#ModelHandler.export_model(model=model, path="./models/temp_model.json")
+
+markov = MarkovMachine()
+markov.load_model_from_file("./models/temp_model.json")
+print(markov.generate_text(output_length=200, input_tokens=[" ", "a", " "]))
