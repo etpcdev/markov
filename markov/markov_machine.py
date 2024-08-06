@@ -52,7 +52,8 @@ class MarkovMachine:
             next_states.append(transition[0])
             probabilities.append(transition[1])
             
-        return choices(population=next_states,weights=probabilities)[0]
+        return choices(population=next_states,
+                       weights=probabilities)[0]
     
     def get_next_state(
                     self, 
