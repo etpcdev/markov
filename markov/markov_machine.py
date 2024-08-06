@@ -16,7 +16,8 @@ class MarkovMachine:
         with open(path, "r") as f:
             model = f.read()
         
-        self.__model = loads(model)
+        self.load_model(model=model)
+        #self.__model = loads(model)
 
 
     def generate_chain(self, length=100, depth=3):

@@ -1,97 +1,82 @@
 from json import dumps
 class ModelHandler():
 
-    @classmethod
-    def export_model(cls, model, path):
-        with open(path, "w") as export_file:
-            export_file.write(model)
+    @staticmethod
+    def export_model(model: str, path: str) -> None:
+        """Save the model to a file designated by path. 
+        (Must be a JSON compatible string)"""
+
+        with open(path, "w") as f:
+            f.write(model)
 
 
-    @classmethod
-    def __normalize_model(cls, model, tokens, depth):
+    @staticmethod
+    def __normalize_model(model:  dict[str, list[str, float]], 
+                          tokens: list[str], 
+                          depth:  int) -> dict[str, list[str, float]]:
+        """Normalize the probabilities of each token key to 0-1."""
+        normalization_factor: float = 1
 
-        normalization_factor = 1
-
-        key_token = None
-
-        tracker = 1
-        token_bucket = []
+        depth_tracker: int = 1
+        token_bucket: list[str] = []
         for token in tokens:
 
-            if tracker <= depth:
+            if depth_tracker <= depth:
                 token_bucket.append(token)
-                tracker += 1
+                depth_tracker += 1
                 continue
-
             
-            key_token = ""
+            key_token: str = ""
             for tkn in token_bucket:
                 key_token += tkn
 
             token_bucket.append(token)
             token_bucket.pop(0)
 
-            total_weight = 0
+            total_weight: float = 0
             for next_token in model[key_token]:
                 total_weight += next_token[1]
             
-            coefficient = normalization_factor / total_weight
+            coefficient: float = normalization_factor / total_weight
 
             for next_token in model[key_token]:
                 next_token[1] *= coefficient
-        
-            key_token = token
 
         return model
 
 
     @classmethod
-    def generate_model(cls, tokens, depth=3):
-        model = {}
-        """
-        model = {
-            "token1" = [
-                     ["next_token_A", 1],
-                     ["next_token_B", 6],
-                     ["next_token_C", 4],
-                     ...
-                    ],
-            "token2" = [
-                     ...
-                    ],
-            ...
-        }
-        
-        """
-        tracker = 1
-        token_bucket = []
+    def generate_model(cls, tokens: list[str], depth: int = 3) -> str:
+        """Generate a model as JSON using a list of tokens."""
+        model: dict[str, list[str, float]] = {}
+
+        depth_tracker: int = 1
+        token_bucket: list[str] = []
         for token in tokens:
 
-            if tracker <= depth:
+            #Get the first n tokens (defined by depth) to use as a key.
+            if depth_tracker <= depth:
                 token_bucket.append(token)
-                tracker += 1
+                depth_tracker += 1
                 continue
 
-            
-            key_token = ""
+            #Constructs tokens to be used as keys in the model.
+            key_token: str = ""
             for tkn in token_bucket:
-                #print(tkn)
                 key_token += tkn
                 
             token_bucket.append(token)
             token_bucket.pop(0)
             
-
-            #Create indexes for last token
+            #Creates an index for the key token.
             if key_token not in model:
                 model[key_token] = [[token, float(0)]]
 
-            #Populate last tokens list of possible next tokens
+            #Populate key token's list of transitions.
             if key_token in model:
-                
+
                 for next_token in model[key_token]:
-                    
-                    found = False
+                    found: bool = False
 
                     if token in next_token:
                         next_token[1] += 1
@@ -100,95 +85,7 @@ class ModelHandler():
                 
                 if not found:
                     model[key_token].append([token, 1])
-                    
-            
-            key_token = token
 
         model = cls.__normalize_model(model, tokens, depth)
 
         return dumps(model)
-    
-
-
-    """@classmethod
-    def __normalize_model(cls, model, tokens):
-
-        normalization_factor = 1
-
-        key_token = None
-
-        for token in tokens:
-
-            #Set up the first pair of tokens
-            if key_token == None:
-                key_token = token
-                continue
-
-            total_weight = 0
-            for next_token in model[key_token]:
-                total_weight += next_token[1]
-            
-            coefficient = normalization_factor / total_weight
-
-            for next_token in model[key_token]:
-                next_token[1] *= coefficient
-        
-            key_token = token
-
-        return model
-    
-
-    @classmethod
-    def generate_model(cls, tokens):
-        model = {}
-        \"""
-        model = {
-            "token1" = [
-                     ["next_token_A", 1],
-                     ["next_token_B", 6],
-                     ["next_token_C", 4],
-                     ...
-                    ],
-            "token2" = [
-                     ...
-                    ],
-            ...
-        }
-        
-        \"""
-        key_token = None
-        for token in tokens:
-
-            #Set up the first pair of tokens
-            if key_token == None:
-                key_token = token
-                continue
-
-
-            #Create indexes for last token
-            if key_token not in model:
-                model[key_token] = [[token, float(0)]]
-
-            #Populate last tokens list of possible next tokens
-            if key_token in model:
-                
-                for next_token in model[key_token]:
-                    
-                    found = False
-
-                    if token in next_token:
-                        next_token[1] += 1
-                        found = True
-                        break
-                
-                if not found:
-                    model[key_token].append([token, 1])
-                    
-                
-            key_token = token
-
-        model = cls.__normalize_model(model, tokens)
-
-        return dumps(model)
-    """
-    
