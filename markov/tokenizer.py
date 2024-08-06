@@ -1,33 +1,38 @@
 import re
-"""
-Accepts a body of text and returns a list of all the tokens in order.
-"""
+
 class Tokenizer():
-    
-    #Tokenizes Unicode text
+    """Takes a body of text and tokenizes it."""
+
     @classmethod
-    def tokenize_text(cls, text: str) -> list[str] | None:
+    def tokenize_text(cls, text: str) -> list[str]:
+        """Tokenize a body of text."""
+
+        pattern: re.Pattern                 = cls.__compile_regex()
+        matches: re.Iterator[re.Match[str]] = pattern.finditer(text)
+
+        tokens: list[str] = []
+        for match in matches:
+            tokens.append(match[0])
+
+        return tokens
+
+    @staticmethod
+    def __compile_regex() -> re.Pattern:
+        """Defines what a token consists of."""
         
-        pattern = cls.__compileRegex(mode="text")
-        matches = pattern.finditer(text)
+        elipses:    str = r'\.\.\.'
+        numbers:    str = r'([0-9]+(?:\.*_*,*[0-9]*)+)'
+        words:      str = r'\w+'
+        spaces:     str = r' '
+        grammar:    str = r'\W'
+        new_line:   str = "\n"
 
-        tokens = []
-        for i in matches:
-            tokens.append(i[0])
-
-        return tokens or None
-        
-
-    #if newlines are a problem, replace them with a placeholder like § <-- paragraph symbol
-
-    def __compileRegex(mode="text") -> re.Pattern:
-        if mode == "text":
-            elipses = r'\.\.\.'
-            numbers = r'([0-9]+(?:\.*_*,*[0-9]*)+)'
-            words = r'\w+'
-            spaces = r' '
-            grammar = r'\W'
-            new_line = "\n"
-            pattern = elipses + "|" + numbers + "|" + words + "|" + spaces + "|" + grammar + "|" + new_line
+        pattern: str = \
+            elipses     + "|" + \
+            numbers     + "|" + \
+            words       + "|" + \
+            spaces      + "|" + \
+            grammar     + "|" + \
+            new_line
         
         return re.compile(pattern)
