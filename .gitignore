@@ -1,5 +1,4 @@
 .venv
-model_extra_large.json
-model_large.json
-old/
-models/
+models/model_extra_large.json
+models/model_large.json
+models/temp_model.json

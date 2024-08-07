@@ -1,24 +1,41 @@
 from json import dumps
+from typing import Any
+
+
 class ModelHandler():
 
     @staticmethod
     def export_model(model: str, path: str) -> None:
         """Save the model to a file designated by path. 
-        (Must be a JSON compatible string)"""
+        (Must be a JSON compatible string)
+
+        Args:
+            model (str): JSON model.
+            path (str): Filepath.
+        """
 
         with open(path, "w") as f:
             f.write(model)
 
 
     @staticmethod
-    def __normalize_model(model:  dict[str, list[str, float]], 
-                          tokens: list[str], 
-                          depth:  int) -> dict[str, list[str, float]]:
-        """Normalize the probabilities of each token key to 0-1."""
-        normalization_factor: float = 1
+    def __normalize_model(model:  dict[str, Any], 
+                          tokens: list[str], depth: int) -> dict[str, Any]:
+        """Normalize the probabilities of each token key to [0.0 - 1.0].
 
-        depth_tracker: int = 1
-        token_bucket: list[str] = []
+        Args:
+            model (dict[str, Any]): Structured model.
+            tokens (list[str]): Tokens used to generate the model.
+            depth (int): How many tokens to use per key.
+
+        Returns:
+            dict[str, Any]: Normalized model.
+        """
+        
+        normalization_factor:   float       = 1
+        depth_tracker:          int         = 1
+        token_bucket:           list[str]   = []
+        
         for token in tokens:
 
             if depth_tracker <= depth:
@@ -27,6 +44,7 @@ class ModelHandler():
                 continue
             
             key_token: str = ""
+            
             for tkn in token_bucket:
                 key_token += tkn
 
@@ -34,6 +52,7 @@ class ModelHandler():
             token_bucket.pop(0)
 
             total_weight: float = 0
+            
             for next_token in model[key_token]:
                 total_weight += next_token[1]
             
@@ -47,11 +66,23 @@ class ModelHandler():
 
     @classmethod
     def generate_model(cls, tokens: list[str], depth: int = 3) -> str:
-        """Generate a model as JSON using a list of tokens."""
-        model: dict[str, list[str, float]] = {}
+        """Generate a model as JSON using a list of tokens.
+        The model is structured as dict[str, list[str, float]], then
+        returned as a JSON compatible string.
 
-        depth_tracker: int = 1
-        token_bucket: list[str] = []
+        Args:
+            tokens (list[str]): List of tokens used to create the model.
+            depth (int, optional): How many tokens to use per key. 
+                Defaults to 3.
+
+        Returns:
+            str: Model as JSON.
+        """
+        
+        model:          dict[str, Any]  = {}
+        depth_tracker:  int             = 1
+        token_bucket:   list[str]       = []
+        
         for token in tokens:
 
             #Get the first n tokens (defined by depth) to use as a key.
@@ -62,6 +93,7 @@ class ModelHandler():
 
             #Constructs tokens to be used as keys in the model.
             key_token: str = ""
+            
             for tkn in token_bucket:
                 key_token += tkn
                 
@@ -74,7 +106,7 @@ class ModelHandler():
 
             #Populate key token's list of transitions.
             if key_token in model:
-
+                
                 for next_token in model[key_token]:
                     found: bool = False
 
