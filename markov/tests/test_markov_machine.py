@@ -52,7 +52,8 @@ class TestMarkovMachine(unittest.TestCase):
     def test___init_output(self):
         
         self.assertEqual("Once upon a time", 
-                         self.mkv._MarkovMachine__init_output(self.test_tokens))
+                         self.mkv._MarkovMachine__init_output(
+                             self.test_tokens))
 
     def test_get_next_token(self):
         pass

@@ -7,33 +7,27 @@ class TestTokenizer(unittest.TestCase):
     
     def test_tokenize_text_grammar(self) -> None:
         grammar: str = ".,...(){}[]\\/*-+!?~^\" \n"
-        self.assertEqual([".", ",", "...",
-                          "(", ")", "{", "}", "[", "]", 
-                          "\\", "/", "*", "-", "+",
-                          "!", "?", "~", "^", "\"",
-                          " ", "\n"
-                          ], 
-                          Tokenizer.tokenize_text(grammar))
+        self.assertEqual([".", ",", "...", "(", ")", "{", "}", "[", "]", "\\", 
+                          "/", "*", "-", "+", "!", "?", "~", "^", "\"", " ", 
+                          "\n"], Tokenizer.tokenize_text(grammar))
 
     def test_tokenize_text_accented(self) -> None:
-        accented_chars: list[str] = \
-                         ["á", " ", "é", " ", "í", " ", "ó", " ", "ú", " ", 
+        accented_chars: list[str] = [
+                          "á", " ", "é", " ", "í", " ", "ó", " ", "ú", " ", 
                           "à", " ", "è", " ", "ì", " ", "ò", " ", "ù", " ", 
                           "ã", " ", "ẽ", " ", "ĩ", " ", "õ", " ", "ũ", " ", 
                           "â", " ", "ê", " ", "î", " ", "ô", " ", "û", " ", 
-                          "ç", " ", "Ç", " ", "ñ", " ", "Ñ"
-                          ]
+                          "ç", " ", "Ç", " ", "ñ", " ", "Ñ"]
+                          
         for char in accented_chars:
-            self.assertEqual([char], 
-                             Tokenizer.tokenize_text(char))
+            self.assertEqual([char], Tokenizer.tokenize_text(char))
 
     def test_tokenize_text_words(self) -> None:
         words: str = "The quick brown fox jumps over the lazy dog"
         self.assertEqual(["The", " ", "quick", " ", "brown", " ", "fox", " ",
                           "jumps", " ", "over", " ", "the", " ", "lazy", " ",
-                          "dog"
-                          ], 
-                          Tokenizer.tokenize_text(words))
+                          "dog"], 
+                         Tokenizer.tokenize_text(words))
 
     def test_tokenize_text_int(self) -> None:
         for i in range(0, 9999):
